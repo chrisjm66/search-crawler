@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/url"
 )
 
 func main() {
@@ -38,12 +37,6 @@ func main() {
 			inputValid = false
 			fmt.Println("Invalid database selection")
 		}
-		_, err := url.ParseRequestURI(startingLink)
-		if err != nil {
-			inputValid = false
-			fmt.Println("Invalid URL")
-		}
-
 	}
 
 	// Setup config for app

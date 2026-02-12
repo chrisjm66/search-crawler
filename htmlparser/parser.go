@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"golang.org/x/net/html"
 	"io"
 	"os"
 	"strings"
-	"golang.org/x/net/html"
 )
 
 func ParseHtml(reader io.Reader) ([]string, error) {
@@ -18,30 +18,26 @@ func ParseHtml(reader io.Reader) ([]string, error) {
 		return nil, err
 	}
 
-	links = traverse(node, links)
+	links = parseLinks(node, links)
 
 	return links, nil
 }
 
-func traverse(node *html.Node, links []string) []string {
-	if node.Type == html.ElementNode {
-		switch node.Data {
-		case "a":
-			link, err := extractLink(node)
-			fmt.Printf("Link found: %s\n", link)
-			if err != nil {
-				fmt.Printf("Error: %s\n", err)
-				break
+func parseLinks(document *html.Node, links []string) ([]string) {
+	for i := range document.Descendants() {
+		if i.Type == html.ElementNode {
+			switch i.Data {
+			case "a":
+				link, err := extractLink(i)
+				fmt.Printf("Link found: %s\n", link)
+				if err != nil {
+					fmt.Printf("Error: %s\n", err)
+					break
+				}
+
+				links = append(links, link)
+			// we can add other stuff in the future like images, paragraphs here
 			}
-
-			links = append(links, link)
-		}
-	}
-
-	for i := node.FirstChild; i != nil; i = i.NextSibling {
-		if i.Type == html.ElementNode  && i.Data != "head"{
-			fmt.Println(i.Data)
-			links = traverse(i, links)
 		}
 	}
 

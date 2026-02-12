@@ -11,14 +11,15 @@ func TestLinkExtraction(t *testing.T) {
 		{
 			filePath: "./html-test-files/test1.html",
 			links: []string{
-				"http://something.com",
-				"https://somethingelse.com",
+				"https://something.com",
+				"https://somethingelse.org",
 			},
 		},
 		{
 			filePath: "./html-test-files/test2.html",
 			links: []string{
 				"https://example.com",
+				"https://dontforgetthehead.com",
 			},
 		},
 	}
@@ -35,11 +36,12 @@ func TestLinkExtraction(t *testing.T) {
 		}
 
 		if len(parsedLinks) != len(v.links) {
+			fmt.Printf("lengths not equal: %d %d \n", len(parsedLinks), len(v.links))
 			t.Errorf("Test failed: parsed links and links table of differing length.\n")
 		}
 
 		for _, link := range parsedLinks {
-			if slices.Contains(v.links, link) {
+			if !slices.Contains(v.links, link) {
 				t.Errorf("Test failed: link added that should not be included.\n")
 			}
 		}
