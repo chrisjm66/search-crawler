@@ -1,4 +1,4 @@
-package htmlparser
+package html_parser
 
 import (
 	"fmt"
@@ -9,14 +9,14 @@ import (
 func TestLinkExtraction(t *testing.T) {
 	testcases := [...]HtmlTestcase{
 		{
-			filePath: "./html-test-files/test1.html",
+			filePath: "./html_test_files/test1.html",
 			links: []string{
 				"https://something.com",
 				"https://somethingelse.org",
 			},
 		},
 		{
-			filePath: "./html-test-files/test2.html",
+			filePath: "./html_test_files/test2.html",
 			links: []string{
 				"https://example.com",
 				"https://dontforgetthehead.com",

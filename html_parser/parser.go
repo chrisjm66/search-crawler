@@ -1,4 +1,4 @@
-package htmlparser
+package html_parser
 
 import (
 	"bytes"

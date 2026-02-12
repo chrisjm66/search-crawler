@@ -1,7 +1,10 @@
 package main
 
 import (
+	"chrismangan/search-crawler/bfs"
+	"chrismangan/search-crawler/http_operations"
 	"fmt"
+	"time"
 )
 
 func main() {
@@ -9,6 +12,7 @@ func main() {
 	var choice int
 	var useDatabase int
 	var startingLink string
+	var maxPageVisits int
 	inputValid := false
 
 	fmt.Println("Welcome to the Search Crawler!")
@@ -26,6 +30,9 @@ func main() {
 		fmt.Println("Enter starting link to use (must be HTTPS): ")
 		fmt.Scan(&startingLink)
 
+		fmt.Println("Enter max page visits: ")
+		fmt.Scan(&maxPageVisits)
+
 		// Validation
 		inputValid = true
 		if choice < 0 || choice > 1 {
@@ -37,6 +44,11 @@ func main() {
 			inputValid = false
 			fmt.Println("Invalid database selection")
 		}
+
+		if !http_operations.IsUrlValid(startingLink) {
+			inputValid = false
+			fmt.Println("Invalid URL")
+		}
 	}
 
 	// Setup config for app
@@ -45,21 +57,26 @@ func main() {
 	config.useDatabase = false
 	config.startingLink = startingLink
 	config.debugMode = debugMode
+	config.maxPageVisits = maxPageVisits
 
 	if config.debugMode {
 		fmt.Print(config)
 	}
 
+	startNanoTime := time.Now().Nanosecond()
 	switch(config.searchType) {
 		// DFS
 		case 0:
-
+			fmt.Println("Not implemented")
 			break
 		// BFS
 		case 1:
-
+			bfs.BFS(config.startingLink, config.maxPageVisits)
 			break
 	}
+	endNanoTime := time.Now().Nanosecond()
+
+	fmt.Printf("Search complete:\n\tTime taken: %d", endNanoTime - startNanoTime)
 }
 
 type Configuration struct {
@@ -67,4 +84,5 @@ type Configuration struct {
 	useDatabase  bool
 	startingLink string
 	debugMode    bool
+	maxPageVisits int
 }
