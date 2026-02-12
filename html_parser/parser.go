@@ -2,12 +2,14 @@ package html_parser
 
 import (
 	"bytes"
+	"chrismangan/search-crawler/http_operations"
 	"errors"
 	"fmt"
-	"golang.org/x/net/html"
 	"io"
 	"os"
 	"strings"
+
+	"golang.org/x/net/html"
 )
 
 func ParseHtml(reader io.Reader) ([]string, error) {
@@ -30,6 +32,7 @@ func parseLinks(document *html.Node, links []string) ([]string) {
 			case "a":
 				link, err := extractLink(i)
 				fmt.Printf("Link found: %s\n", link)
+
 				if err != nil {
 					fmt.Printf("Error: %s\n", err)
 					break
@@ -58,7 +61,9 @@ func ReadHtmlFile(filepath string) (io.Reader, error) {
 func extractLink(node *html.Node) (string, error) {
 	for _, attribute := range node.Attr {
 		if attribute.Key == "href" && strings.Contains(attribute.Val, "http") {
-			return attribute.Val, nil
+			if http_operations.IsUrlValid(attribute.Val) {
+				return attribute.Val, nil
+			}
 		}
 	}
 

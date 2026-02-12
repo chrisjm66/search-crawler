@@ -1,88 +1,46 @@
 package main
 
 import (
-	"chrismangan/search-crawler/bfs"
-	"chrismangan/search-crawler/http_operations"
+	"chrismangan/search-crawler/searches"
+	"chrismangan/search-crawler/input"
 	"fmt"
 	"time"
 )
 
 func main() {
 	debugMode := true
-	var choice int
-	var useDatabase int
-	var startingLink string
-	var maxPageVisits int
-	inputValid := false
 
 	fmt.Println("Welcome to the Search Crawler!")
 
 	if debugMode {
 		fmt.Println("Debug mode is ACTIVE")
 	}
-	for !inputValid {
-		fmt.Println("Select Search Type: Enter 0 for DFS based crawl, 1 for BFS based crawl")
-		fmt.Scan(&choice)
 
-		fmt.Println("Would you like to use a SQL database? Enter 0 (no) or 1 (true)")
-		fmt.Scan(&useDatabase)
+	config := input.GetUserInput()
 
-		fmt.Println("Enter starting link to use (must be HTTPS): ")
-		fmt.Scan(&startingLink)
-
-		fmt.Println("Enter max page visits: ")
-		fmt.Scan(&maxPageVisits)
-
-		// Validation
-		inputValid = true
-		if choice < 0 || choice > 1 {
-			inputValid = false
-			fmt.Println("Invaid search type")
-		}
-
-		if useDatabase < 0 || useDatabase > 1 {
-			inputValid = false
-			fmt.Println("Invalid database selection")
-		}
-
-		if !http_operations.IsUrlValid(startingLink) {
-			inputValid = false
-			fmt.Println("Invalid URL")
-		}
-	}
-
-	// Setup config for app
-	var config Configuration
-	config.searchType = choice
-	config.useDatabase = false
-	config.startingLink = startingLink
-	config.debugMode = debugMode
-	config.maxPageVisits = maxPageVisits
-
-	if config.debugMode {
+	if config.DebugMode {
 		fmt.Print(config)
 	}
 
+	var searchReturnData searches.SearchReturnData
 	startNanoTime := time.Now().Nanosecond()
-	switch(config.searchType) {
-		// DFS
-		case 0:
-			fmt.Println("Not implemented")
-			break
-		// BFS
-		case 1:
-			bfs.BFS(config.startingLink, config.maxPageVisits)
-			break
+	switch config.SearchType {
+	// DFS
+	case 0:
+		fmt.Println("Not implemented")
+	// BFS
+	case 1:
+		searchReturnData = searches.BFS(config)
 	}
 	endNanoTime := time.Now().Nanosecond()
 
-	fmt.Printf("Search complete:\n\tTime taken: %d", endNanoTime - startNanoTime)
+	fmt.Printf("Search complete:\n\tTime taken: %d\n", startNanoTime-endNanoTime)
+	fmt.Println("Links found:")
+	for _, v := range searchReturnData.Links {
+		fmt.Printf("\t%s", v)
+	}
+
+	fmt.Printf("\nTotal pages scraped: %d\nTotal Links Found: %d", searchReturnData.TotalPagesVisited, len(searchReturnData.Links))
 }
 
-type Configuration struct {
-	searchType   int // 0 = BFS, 1 = DFS
-	useDatabase  bool
-	startingLink string
-	debugMode    bool
-	maxPageVisits int
-}
+
