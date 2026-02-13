@@ -5,12 +5,10 @@ import (
 	"chrismangan/search-crawler/http_operations"
 	"chrismangan/search-crawler/input"
 	"fmt"
-	"net/http"
 	"time"
 )
 
 func BFS(config input.Configuration) SearchReturnData {
-	httpClient := &http.Client{}
 	visits := 0
 	foundLinks := []string{config.StartingLink}
 	queue := []string{config.StartingLink}
@@ -28,22 +26,14 @@ func BFS(config input.Configuration) SearchReturnData {
 
 		currentUrl := queue[0]
 		queue = queue[1:]
-		req, err := http_operations.CreateHttpGetRequest(currentUrl)
+		resp, err := http_operations.GetPageBody(currentUrl)
 
 		if err != nil {
-			fmt.Printf("Error HTTP GET: %v\n", err)
 			continue
 		}
 
-		resp, err := httpClient.Do(req)
-
-		if err != nil {
-			fmt.Printf("Error HTTP GET: %v\n", err)
-			continue
-		}
-
-		defer resp.Body.Close()
-		extractedLinks, err := html_parser.ParseHtml(resp.Body)
+		extractedLinks, err := html_parser.ParseHtml(resp)
+		defer resp.Close()
 
 		if err != nil {
 			fmt.Printf("Error parsing links on %s: %v\n", currentUrl, err)
@@ -58,7 +48,7 @@ func BFS(config input.Configuration) SearchReturnData {
 	}
 
 	returnData := SearchReturnData{
-		Links: foundLinks,
+		Links:             foundLinks,
 		TotalPagesVisited: visits,
 	}
 
